@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model IntegrationConnection {
+  id                    String    @id @default(cuid())
+  wixSiteId             String    @unique
+  hubspotPortalId       String?   @unique
+  accessTokenCiphertext String
+  refreshTokenCiphertext String
+  tokenExpiresAt        DateTime
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  disconnectedAt        DateTime?
+
+  fieldMappings FieldMapping[]
+  contactLinks  ContactLink[]
+  syncLogs      SyncEventLog[]
+  leadEvents    LeadEvent[]
+}
+
+model OAuthState {
+  id        String   @id @default(cuid())
+  state     String   @unique
+  wixSiteId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model FieldMapping {
+  id                    String   @id @default(cuid())
+  integrationConnectionId String
+  wixField              String
+  hubspotField          String
+  direction             String
+  transform             String?
+  defaultValue          String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([integrationConnectionId])
+  @@unique([integrationConnectionId, wixField, hubspotField, direction])
+}
+
+model ContactLink {
+  id                    String   @id @default(cuid())
+  integrationConnectionId String
+  wixContactId          String
+  hubspotContactId      String
+  lastWixUpdatedAt      DateTime?
+  lastHubspotUpdatedAt  DateTime?
+  lastWixHash           String?
+  lastHubspotHash       String?
+  lastSyncSource        String
+  lastSyncId            String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id], onDelete: Cascade)
+
+  @@unique([integrationConnectionId, wixContactId])
+  @@unique([integrationConnectionId, hubspotContactId])
+  @@index([integrationConnectionId])
+}
+
+model SyncEventLog {
+  id                    String   @id @default(cuid())
+  integrationConnectionId String
+  source                String
+  syncId                String
+  fingerprint           String
+  processedAt           DateTime
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+
+  connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([integrationConnectionId, expiresAt])
+  @@unique([integrationConnectionId, source, syncId])
+}
+
+model LeadEvent {
+  id                    String   @id @default(cuid())
+  integrationConnectionId String
+  wixSubmissionId       String?
+  email                 String?
+  pageUrl               String?
+  referrer              String?
+  utmSource             String?
+  utmMedium             String?
+  utmCampaign           String?
+  utmTerm               String?
+  utmContent            String?
+  payload               Json
+  createdAt             DateTime @default(now())
+
+  connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([integrationConnectionId, createdAt])
+}

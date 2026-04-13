@@ -1,0 +1,1 @@
+{"version":3,"file":"wix.service.d.ts","sourceRoot":"","sources":["../../src/services/wix.service.ts"],"names":[],"mappings":"AASA,wBAAgB,oBAAoB,aAmBnC;AAED,wBAAsB,gBAAgB,CAAC,MAAM,EAAE;IAC7C,SAAS,EAAE,MAAM,CAAC;IAClB,YAAY,CAAC,EAAE,MAAM,CAAC;IACtB,MAAM,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,CAAC;IAChC,aAAa,EAAE,MAAM,CAAC;CACvB;;;;GAmCA"}
