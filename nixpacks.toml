@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm-10_x"]
+
+[phases.install]
+cmds = ["npm ci --prefix backend"]
+
+[phases.build]
+cmds = [
+  "npm --prefix backend run prisma:generate",
+  "npm --prefix backend run build"
+]
+
+[start]
+cmd = "npm --prefix backend run start"
