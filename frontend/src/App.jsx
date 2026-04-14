@@ -36,7 +36,17 @@ export default function App() {
     setStatus("");
 
     try {
-      await Promise.all([loadConnection(), loadWixFields(), loadHubspotFields(), loadMappings()]);
+      await loadWixFields();
+      const connectionState = await loadConnection();
+
+      if (!connectionState.connected) {
+        setHubspotFields([]);
+        setMappings([createEmptyMapping()]);
+        setStatus("Connect HubSpot first to load properties and saved mappings.");
+        return;
+      }
+
+      await Promise.all([loadHubspotFields(), loadMappings()]);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Failed to load dashboard data.");
     } finally {
@@ -64,10 +74,13 @@ export default function App() {
     const response = await apiFetch(`/api/auth/hubspot/status?siteId=${encodeURIComponent(siteId)}`);
 
     if (!response.ok) {
-      throw new Error("Unable to load HubSpot connection status.");
+      const details = await safeErrorMessage(response);
+      throw new Error(details || "Unable to load HubSpot connection status.");
     }
 
-    setConnection(await response.json());
+    const data = await response.json();
+    setConnection(data);
+    return data;
   };
 
   const connectHubspot = async () => {
@@ -122,7 +135,8 @@ export default function App() {
       const response = await apiFetch(`/api/mappings?siteId=${encodeURIComponent(siteId)}`);
 
       if (!response.ok) {
-        throw new Error("Unable to load saved mappings.");
+        const details = await safeErrorMessage(response);
+        throw new Error(details || "Unable to load saved mappings.");
       }
 
       const data = await response.json();
@@ -177,7 +191,8 @@ export default function App() {
       });
 
       if (!response.ok) {
-        throw new Error("Unable to save mappings.");
+        const details = await safeErrorMessage(response);
+        throw new Error(details || "Unable to save mappings.");
       }
 
       const savedMappings = await response.json();
@@ -311,4 +326,13 @@ export default function App() {
       </section>
     </main>
   );
+}
+
+async function safeErrorMessage(response) {
+  try {
+    const data = await response.json();
+    return typeof data?.error === "string" ? data.error : "";
+  } catch {
+    return "";
+  }
 }

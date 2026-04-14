@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "start": "node dist/server.js",
     "worker": "ts-node-dev --respawn --transpile-only src/jobs/worker.ts",
+    "worker:start": "node dist/jobs/worker.js",
     "build": "tsc -p tsconfig.json",
     "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate": "prisma migrate dev",
     "test": "echo \"No automated tests yet\""
   },

@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm ci --prefix backend && npm --prefix backend run prisma:generate && npm --prefix backend run build"
+
+[deploy]
+startCommand = "npm --prefix backend run start"
+healthcheckPath = "/"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

@@ -33,3 +33,6 @@ Thumbs.db
 
 # Prisma generated (if committed elsewhere, remove this)
 backend/generated/
+
+# HubSpot config file
+hubspot.config.yml
